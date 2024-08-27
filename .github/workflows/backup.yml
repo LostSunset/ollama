@@ -41,16 +41,21 @@ jobs:
       - name: Sync and handle conflicts
         run: |
           branches=$(git branch -r | grep 'origin/' | grep -v 'origin/HEAD' | sed 's/origin\///')
-          
+
           for branch in $branches; do
             echo "Processing branch: $branch"
-            
+
             if git ls-remote --exit-code --heads upstream $branch > /dev/null 2>&1; then
+              # Reset local branch to origin state
               git checkout -B $branch origin/$branch
               
+              # Clean untracked files and reset any local changes
+              git clean -fd
+              git reset --hard origin/$branch
+
               echo "Changes in upstream $branch:"
               git log --oneline $branch..upstream/$branch
-              
+
               if git merge upstream/$branch --no-edit --allow-unrelated-histories; then
                 echo "Successfully merged changes for $branch"
               else
