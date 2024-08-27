@@ -46,11 +46,13 @@ jobs:
             echo "Processing branch: $branch"
 
             if git ls-remote --exit-code --heads upstream $branch > /dev/null 2>&1; then
-              # Reset local branch to origin state
-              git checkout -B $branch origin/$branch
+              # Force reset the branch to its remote state
+              git checkout -B $branch origin/$branch --force
               
-              # Clean untracked files and reset any local changes
-              git clean -fd
+              # Forcefully remove untracked files and directories
+              git clean -fdx
+              
+              # Reset any changes in tracked files
               git reset --hard origin/$branch
 
               echo "Changes in upstream $branch:"
